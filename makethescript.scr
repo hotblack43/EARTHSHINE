@@ -1,0 +1,1 @@
+find ~/ASTRO/ -name "*.pro*"  | tar -zcvf EARTHSHINE_all_IDL_files.tar.gz -T -
