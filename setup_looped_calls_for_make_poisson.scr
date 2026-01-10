@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Specify the path to the FOLDED images
+path="/media/pth/SSD2/SYNTHETIC_MOONIMAGES/PROGRESSION/AUGMENTED/FOLDED/"
+
+# Specify the NOISY subdirectory used for output
+subdir="NOISY"
+
+# Combine the path and subdir to create the output directory
+outdir="${path}${subdir}"
+
+# List all files in the specified path starting with "folded_"
+echo "${path}folded_*"
+ls "${path}folded_*" > /home/pth/WORKSHOP/EARTHSHINE_CODE/filesREMOVEME
+
+# Iterate over each file listed in filesREMOVEME
+while IFS= read -r ifile; do
+    # Extract the filename without the path
+    filename=$(basename "${ifile}")
+    
+    # Create the output file path
+    outfile="${outdir}NOISY/${filename}"
+
+    # Replace the following command with the desired command to be applied to each file
+    echo "Processing file: ${ifile}"
+    echo "Output file: ${outfile}"
+    
+    # Example command: Replace this with your specific command
+    python3 make_poisson_3.py "$filename" "$outfile"
+done < filesREMOVEME
+
+# Remove the temporary file
+#rm filesREMOVEME
+

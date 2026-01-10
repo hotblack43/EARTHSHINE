@@ -1,0 +1,9 @@
+file='ratio.dat'
+data=get_data(file)
+jd=reform(data(0,*))
+phase_angle=reform(data(1,*))
+isun=reform(data(2,*))
+iearth=reform(data(3,*))
+illumination_ratio=reform(data(4,*))
+plot,jd,illumination_ratio
+end

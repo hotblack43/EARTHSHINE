@@ -1,0 +1,2 @@
+.r splitapart.pro
+exit

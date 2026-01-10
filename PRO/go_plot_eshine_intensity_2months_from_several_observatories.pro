@@ -1,0 +1,3 @@
+.r plot_eshine_intensity_2months_from_several_observatories.pro
+exit
+

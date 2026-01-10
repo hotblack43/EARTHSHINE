@@ -1,0 +1,37 @@
+General note: Should do something about subroutine names that use mixed
+UPPER and LoWeR case - as the usage is not consistent across Windows
+and Linux. E.g. CalcTransformMatrix.pro and calctransformmatrix.pro
+
+Version 16 vs version 15:
+
+
+Extra FITS header for Modified Julian data added
+Fixed the seconds field in the FITS header
+Writing INFO JPG and IDEAL images to such named directories
+Attempt to speed CalcTransformMatrix.pro up by reusing trig calculations
+Furnished routine to read the albedo maps as binary files - perhaps it speeds the code up? No?
+
+
+Version 13 vs. Version 12:
+
+1) an added sutroutine 'generate_ccd.pro' is called from eshine_core to
+construct a realistic CCD image.  generate_ccd.pro writes out relastic
+simulated dark frames (i.e. bias + dark current + readout noise) as well
+as a simulated flat field.
+
+2) the call to eshine_core is slightly modified, and eshine_13 is modified
+accordingly, but the GUI is not.
+
+3) the FITs files that are written out have header information that
+reflect the settings for the simulation.
+
+4) a sky contribution is added by eshine_core but does not have noise -
+the noise may be added in generate_ccd.pro
+
+5) The use of a '/' on TUX for designating a path or file name has been
+inserted, because '\' is used in Windows. Change back if code crashes
+on a Windows machine.
+
+6) an incompatibility TUX/Windows was revealed in upper case used in
+subroutine names, and the names of the subroutines on disk have been
+altered to all lower case.

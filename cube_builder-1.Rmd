@@ -1,0 +1,346 @@
+---
+title: "Fits cubebuilder with azimuth images - 1"
+output: 
+  pdf_document: 
+    fig_height: 7
+---
+
+ 
+
+```{r}
+rm(list=ls())
+setwd("~/WORKSHOP/EARTHSHINE_CODE/")
+library(FITSio)
+library(httr)
+library(stringr)
+library(abind)
+
+# Function to extract Julian Date from filename
+get_julian_date_from_filename <- function(filename) {
+  match <- str_extract(filename, "_JD\\d+\\.\\d+")
+  if (!is.na(match)) {
+    return(as.numeric(sub("_JD", "", match)))
+  }
+  
+  match <- str_extract(filename, "245\\d+\\.\\d+")
+  if (!is.na(match)) {
+    return(as.numeric(match))
+  }
+  
+  return(NA)
+}
+
+# Function to compute azimuthal angle
+compute_azimuthal_angle <- function(incidence_map, emission_map, phase_angle) {
+  azimuthal_angle_map <- matrix(-999, nrow = nrow(incidence_map), ncol = ncol(incidence_map))
+
+  valid_mask <- (incidence_map != -999) & (emission_map != -999)
+
+  i_rad <- incidence_map[valid_mask] * pi / 180  # Convert to radians if needed
+  e_rad <- emission_map[valid_mask] * pi / 180
+  alpha_rad <- phase_angle  # Already in radians
+
+  denom <- sin(i_rad) * sin(e_rad)
+  denom[denom == 0] <- NA  # Avoid division errors
+
+  cos_phi <- (cos(alpha_rad) - cos(i_rad) * cos(e_rad)) / denom
+  cos_phi <- pmax(pmin(cos_phi, 1), -1)  # Clip values
+
+  azimuthal_angle_map[valid_mask] <- acos(cos_phi)
+  return(azimuthal_angle_map)
+}
+
+# Function to stack FITS files into a 3D cube
+combine_fits_to_cube <- function(filenames, output_file) {
+  image_list <- list()
+  original_header <- NULL
+  julian_date <- NA
+
+  for (file in filenames) {
+    fits_data <- readFITS(file)
+    img <- fits_data$imDat
+    
+    if (is.null(original_header)) {
+      original_header <- fits_data$hdr
+    }
+    
+    if (length(dim(img)) == 2) {
+      img <- array(img, dim = c(dim(img)[1], dim(img)[2], 1))
+    }
+    
+    image_list <- append(image_list, list(img))
+    
+    if (is.na(julian_date)) {
+      jd <- get_julian_date_from_filename(basename(file))
+      if (!is.na(jd)) {
+        julian_date <- jd
+      }
+    }
+  }
+
+  if (is.na(julian_date)) {
+    stop("Julian Date could not be extracted from any input file.")
+  }
+
+  fits_cube <- do.call(abind, c(image_list, list(along = 3)))
+
+  for (i in seq_along(filenames)) {
+    comment_text <- paste("Layer", i, "from file:", basename(filenames[i]))
+    original_header <- append(original_header, list(list("COMMENT", comment_text, "")))
+  }
+
+  writeFITSim(fits_cube, file = output_file, header = original_header)
+  cat("FITS cube saved to:", output_file, "\n")
+
+  return(julian_date)
+}
+
+# Function to process azimuthal angle in FITS cube
+process_lunar_cube <- function(fits_cube_path, incidence_layer, emission_layer, julian_date, output_fits) {
+  fits_data <- readFITS(fits_cube_path)
+  data_cube <- fits_data$imDat
+  header <- fits_data$hdr
+
+  # Compute phase angle (Placeholder: Replace with real computation)
+  phase_angle <- 30 * pi / 180  # Example: 30 degrees converted to radians
+
+  incidence_map <- data_cube[, , incidence_layer + 1]
+  emission_map <- data_cube[, , emission_layer + 1]
+
+  azimuthal_angle_map <- compute_azimuthal_angle(incidence_map, emission_map, phase_angle)
+
+  new_cube <- abind(data_cube, azimuthal_angle_map, along = 3)
+
+  header <- append(header, list(list("COMMENT", "Azimuthal angle (radians) computed from incidence/emission angles.", "")))
+
+  writeFITSim(new_cube, file = output_fits, header = header)
+  cat("Updated FITS cube saved with azimuthal angle:", output_fits, "\n")
+}
+
+# ---- Example Usage ----
+fits_files <- c(
+  "./OUTPUT/IDEAL/ideal_LunarImg_SCA_0p34577230_JD_2455864.7415237_illfrac_0.1608.fit",
+  "./OUTPUT/LONLAT_AND_ANGLES_IMAGES/lonlatSELimage_JD2455864.7415237.fits",
+  "./OUTPUT/LONLAT_AND_ANGLES_IMAGES/Angles_JD2455864.7415237.fits",
+  "./OUTPUT/SUNMASK/SunMask_JD_2455864.7415237.fit"
+)
+output_file <- "fits_cube.fits"
+output_fits <- "updated_fits_cube.fits"
+
+# Step 1: Build the FITS Cube and extract JD
+julian_date <- combine_fits_to_cube(fits_files, output_file)
+
+# Step 2: Compute Azimuthal Angle and Append as a New Layer
+process_lunar_cube(output_file, incidence_layer=1, emission_layer=3, julian_date, output_fits)
+ 
+```
+ 
+ 
+```{r}
+# Load required package
+library(FITSio)
+
+# ---- 1. Create Sample Data ----
+# Example: Creating a 2D matrix (can be replaced with actual FITS image data)
+data_matrix <- matrix(1:15, ncol = 3)
+
+# ---- 2. Generate a FITS Header ----
+# Define header parameters
+crpix <- c(1, 1)                 # Reference pixel
+crval <- c(10, 100)              # Values at reference pixel
+cdelt <- c(8, 2)                 # Axis increments per pixel
+ctype <- c("Distance", "Time")   # Axis labels
+cunit <- c("Furlongs", "Fortnights")  # Axis units
+
+# Generate the header using makeFITSimHdr
+header <- makeFITSimHdr(
+  data_matrix,
+  crpixn = crpix,
+  crvaln = crval,
+  cdeltn = cdelt,
+  ctypen = ctype,
+  cunitn = cunit
+)
+
+# ---- 3. Add Custom Comments and Keywords ----
+header <- addComment("This is a custom comment.", header = header)  # Adding a comment
+header <- addKwv("OBSERVER", "John Doe", "Name of the observer", header = header)  # Custom keyword-value pair
+header <- addKwv("EXPTIME", 120, "Exposure time in seconds", header = header)  # Example metadata
+
+# Ensure header is properly terminated
+header <- closeHdr(header)
+
+# ---- 4. Write the FITS File ----
+output_file <- "output.fits"  # Define output file name
+
+# Write data + header to FITS file
+writeFITSim(data_matrix, file = output_file, header = header)
+
+cat("FITS file successfully saved as:", output_file, "\n")
+
+# ---- 5. Read Back the FITS File for Verification ----
+fits_data <- readFITS(output_file)  # Read back the file
+
+# Print FITS Header
+print("FITS Header:")
+print(fits_data$hdr)
+
+# Print FITS Data
+print("FITS Data:")
+print(fits_data$imDat)
+
+```
+ 
+```{r}
+# Load required packages
+library(FITSio)
+library(abind)
+
+# ---- 1. Function to Extract Julian Date from Filename ----
+get_julian_date_from_filename <- function(filename) {
+  match <- str_extract(filename, "_JD\\d+\\.\\d+")
+  if (!is.na(match)) {
+    return(as.numeric(sub("_JD", "", match)))
+  }
+  
+  match <- str_extract(filename, "245\\d+\\.\\d+")
+  if (!is.na(match)) {
+    return(as.numeric(match))
+  }
+  
+  return(NA)
+}
+
+# ---- 2. Compute Azimuthal Angle ----
+compute_azimuthal_angle <- function(incidence_map, emission_map, phase_angle) {
+  azimuthal_angle_map <- matrix(-999, nrow = nrow(incidence_map), ncol = ncol(incidence_map))
+
+  valid_mask <- (incidence_map != -999) & (emission_map != -999)
+
+  i_rad <- incidence_map[valid_mask] * pi / 180  # Convert to radians if needed
+  e_rad <- emission_map[valid_mask] * pi / 180
+  alpha_rad <- phase_angle  # Already in radians
+
+  denom <- sin(i_rad) * sin(e_rad)
+  denom[denom == 0] <- NA  # Avoid division errors
+
+  cos_phi <- (cos(alpha_rad) - cos(i_rad) * cos(e_rad)) / denom
+  cos_phi <- pmax(pmin(cos_phi, 1), -1)  # Clip values
+
+  azimuthal_angle_map[valid_mask] <- acos(cos_phi)
+  return(azimuthal_angle_map)
+}
+
+# ---- 1. Function to Create a Proper FITS Header ----
+create_fits_header <- function(naxis1, naxis2, naxis3) {
+  header <- list()
+  
+  # Primary HDU parameters (Mandatory for DS9)
+  header <- append(header, list(list("SIMPLE", TRUE, "Standard FITS format")))
+  header <- append(header, list(list("BITPIX", -32, "Floating point data")))  # -32 for float32, 16 for int16
+  header <- append(header, list(list("NAXIS", 3, "Number of axes")))  # 3D FITS cube
+  
+  # Define the size of each axis
+  header <- append(header, list(list("NAXIS1", naxis1, "Image width")))
+  header <- append(header, list(list("NAXIS2", naxis2, "Image height")))
+  header <- append(header, list(list("NAXIS3", naxis3, "Number of layers")))
+
+  # Optional metadata
+  header <- append(header, list(list("BUNIT", "UNKNOWN", "Brightness unit")))
+  header <- append(header, list(list("EXTEND", TRUE, "Extensions may exist")))
+
+  # Ensure proper header termination
+  header <- closeHdr(header)
+  
+  return(header)
+}
+
+# ---- 2. Function to Stack FITS Files into a Proper FITS Cube ----
+combine_fits_to_cube <- function(filenames, output_file) {
+  image_list <- list()
+  julian_date <- NA
+
+  for (file in filenames) {
+    fits_data <- readFITS(file)
+    img <- fits_data$imDat
+    
+    # Ensure image is at least 3D
+    if (length(dim(img)) == 2) {
+      img <- array(img, dim = c(dim(img)[1], dim(img)[2], 1))
+    }
+    
+    image_list <- append(image_list, list(img))
+    
+    # Extract Julian Date from filename
+    if (is.na(julian_date)) {
+      jd <- get_julian_date_from_filename(basename(file))
+      if (!is.na(jd)) {
+        julian_date <- jd
+      }
+    }
+  }
+
+  if (is.na(julian_date)) {
+    stop("Julian Date could not be extracted from any input file.")
+  }
+
+  # Stack images along the 3rd dimension
+  fits_cube <- do.call(abind, c(image_list, list(along = 3)))
+
+  # ---- 3. Create Proper FITS Header ----
+  dims <- dim(fits_cube)  # Get (Height, Width, Layers)
+  header <- create_fits_header(dims[1], dims[2], dims[3])
+
+  # Add comments about each input file
+  for (i in seq_along(filenames)) {
+    header <- addComment(paste("Layer", i, "from file:", basename(filenames[i])), header = header)
+  }
+
+  # ---- 4. Write FITS File with Correct Header ----
+  writeFITSim(fits_cube, file = output_file) #, header = header)
+  cat("FITS cube saved to:", output_file, "\n")
+}
+
+# ---- 5. Compute and Append Azimuth Layer ----
+process_lunar_cube <- function(fits_cube_path, incidence_layer, emission_layer, julian_date, output_fits) {
+  fits_data <- readFITS(fits_cube_path)
+  data_cube <- fits_data$imDat
+  header <- fits_data$hdr
+
+  # Compute phase angle (Placeholder: Replace with real computation)
+  phase_angle <- 30 * pi / 180  # Example: 30 degrees converted to radians
+
+  incidence_map <- data_cube[, , incidence_layer + 1]
+  emission_map <- data_cube[, , emission_layer + 1]
+
+  azimuthal_angle_map <- compute_azimuthal_angle(incidence_map, emission_map, phase_angle)
+
+  # Append azimuthal angle layer to cube
+  new_cube <- abind(data_cube, azimuthal_angle_map, along = 3)
+
+  # ---- 6. Update FITS Header Properly ----
+  header <- addComment("Azimuthal angle (radians) computed from incidence/emission angles.", header = header)
+
+  writeFITSim(new_cube, file = output_fits, header = header)
+  cat("Updated FITS cube saved with azimuthal angle:", output_fits, "\n")
+}
+
+# ---- Example Usage ----
+fits_files <- c(
+  "./OUTPUT/IDEAL/ideal_LunarImg_SCA_0p34577230_JD_2455864.7415237_illfrac_0.1608.fit",
+  "./OUTPUT/LONLAT_AND_ANGLES_IMAGES/lonlatSELimage_JD2455864.7415237.fits",
+  "./OUTPUT/LONLAT_AND_ANGLES_IMAGES/Angles_JD2455864.7415237.fits",
+  "./OUTPUT/SUNMASK/SunMask_JD_2455864.7415237.fit"
+)
+output_file <- "fits_cube.fits"
+output_fits <- "updated_fits_cube.fits"
+
+# Step 1: Build the FITS Cube and extract JD
+julian_date <- combine_fits_to_cube(fits_files, output_file)
+
+# Step 2: Compute Azimuthal Angle and Append as a New Layer
+process_lunar_cube(output_file, incidence_layer=1, emission_layer=3, julian_date, output_fits)
+
+```
+ 
+ 

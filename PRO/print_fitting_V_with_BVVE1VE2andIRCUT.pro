@@ -1,0 +1,11 @@
+data=get_data('B_data')
+print,'B     - mean Albedo and mean d_albedo :',mean(data(1,*)),mean(data(2,*))
+data=get_data('V_data')
+print,'V     - mean Albedo and mean d_albedo :',mean(data(1,*)),mean(data(2,*))
+data=get_data('VE1_data')
+print,'VE1     - mean Albedo and mean d_albedo :',mean(data(1,*)),mean(data(2,*))
+data=get_data('VE2_data')
+print,'VE2     - mean Albedo and mean d_albedo :',mean(data(1,*)),mean(data(2,*))
+data=get_data('IRCUT_data')
+print,'IRCUT     - mean Albedo and mean d_albedo :',mean(data(1,*)),mean(data(2,*))
+end

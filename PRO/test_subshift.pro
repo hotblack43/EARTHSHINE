@@ -1,0 +1,22 @@
+!P.MULTI=[0,1,2]
+orig=double(readfits('/media/bf458fbd-da4b-4083-b564-16d3aceb4c3e/MOONDROPBOX/JD2456004/2456004.1639861MOON_V_AIR.fits.gz'))
+im_in=orig(*,*,54)
+n=100
+for i=0,n-1,1 do begin
+x=randomu(seed)*10.0-5
+y=randomu(seed)*10.0-5
+im=im_in
+new=shift_sub(im,x,y)
+back=shift_sub(new,-x,-y)
+new2=shift_sub_cubic(im,x,y)
+back2=shift_sub_cubic(new2,-x,-y)
+d=(im-back)
+d2=(im-back2)
+rd=d/im
+rd2=d2/im
+plot,im(*,256),/ylog
+plot,rd(*,256)*100.,/ylog
+oplot,rd2(*,256)*100.,color=fsc_color('blue')
+print,stddev(d)/stddev(d2),stddev(d/im)/stddev(d2/im)
+endfor
+end

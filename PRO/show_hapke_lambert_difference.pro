@@ -1,0 +1,17 @@
+lambert=(readfits('LAMBERT_moon.fits'))
+hapke=(readfits('HAPKE_moon.fits'))
+diff=(lambert-hapke)/hapke*100.0d0
+;diff=(hapke-lambert)/lambert*100.0d0
+!P.CHARSIZE=2
+!P.CHARTHICK=2
+!P.MULTI=[0,1,1]
+n=512
+w=110
+im=diff(w:n-w-1,w:n-1-w)
+;contour,nlevels=101,/cell_fill,im,/isotropic,xstyle=3,ystyle=3
+;contour,nlevels=101,/cell_fill,histomatch(im,findgen(256)*0+1),/isotropic,xstyle=3,ystyle=3
+contour,nlevels=101,/cell_fill,histomatch(im,findgen(256)*0+1),/isotropic,xstyle=3,ystyle=3
+levs=fix((findgen(21)/10-1)*100)
+print,levs
+contour,c_charsize=1.2,c_charthick=2,color=fsc_color('white'),im,/overplot,levels=levs,c_labels=indgen(21)*0+1
+end

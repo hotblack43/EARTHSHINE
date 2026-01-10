@@ -1,0 +1,3 @@
+#docker run -p 4000:80 -v $(pwd)/OUTPUT:/app/OUTPUT test3
+podman run --rm -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix eshine
+podman run --rm -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v /run/user/$(id -u)/at-spi:/run/user/1000/at-spi --privileged -v /run/dbus/system_bus_socket:/run/dbus/system_bus_socket eshine

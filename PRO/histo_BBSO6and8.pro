@@ -1,0 +1,19 @@
+s=''
+openr,1,'basename'
+readf,1,s
+close,1
+f6a=file_search(strcompress('RESULTS/BBSO/EXAMPLE1/SIX_DEGREES/B*'+s,/remove_all))
+f6b=file_search(strcompress('RESULTS/BBSO/EXAMPLE1/SIX_DEGREES/cle*'+s,/remove_all))
+f8a=file_search(strcompress('RESULTS/BBSO/EXAMPLE1/EIGHT_DEGREES/B*'+s,/remove_all))
+f8b=file_search(strcompress('RESULTS/BBSO/EXAMPLE1/EIGHT_DEGREES/cle*'+s,/remove_all))
+ss=readfits(f6a,/sil)
+ee=readfits(f8a,/sil)
+masks=readfits(f6b,/sil)
+maske=readfits(f8b,/sil)
+mask=maske*masks
+ss=ss*mask
+ee=ee*mask
+diff=(ss-ee)/((ss+ee)*0.5)*100.0
+idx=where(mask eq 1)
+print,mean(diff(idx)),stddev(diff(idx)),median(diff(idx))
+end

@@ -1,0 +1,11 @@
+data=get_data('f10.dat')
+xf10=reform(data(0,*))
+f10=reform(data(1,*))
+f10=f10-mean(f10)
+data=get_data('/home/pth/INTERESTING_SERIES/tsi_fracyear.txt')
+xTSI=reform(data(0,*))
+TSI=reform(data(1,*))
+TSI=TSI-mean(TSI)-0.15
+plot,xf10,f10/1200.,linestyle=0
+oplot,xTSI,TSI,psym=2
+end

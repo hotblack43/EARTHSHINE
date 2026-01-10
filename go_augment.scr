@@ -1,0 +1,10 @@
+python3 augmentator_5.py /media/pth/SSD2/SYNTHETIC_MOONIMAGES/PROGRESSION/ideal_LunarImg_SCA_0p199_JD_2455865.5000000_illfrac_0.2289.fit
+python3 augmentator_5.py /media/pth/SSD2/SYNTHETIC_MOONIMAGES/PROGRESSION/ideal_LunarImg_SCA_0p209_JD_2455867.7500000_illfrac_0.4558.fit
+python3 augmentator_5.py /media/pth/SSD2/SYNTHETIC_MOONIMAGES/PROGRESSION/ideal_LunarImg_SCA_0p227_JD_2455854.2500000_illfrac_0.5428.fit
+python3 augmentator_5.py /media/pth/SSD2/SYNTHETIC_MOONIMAGES/PROGRESSION/ideal_LunarImg_SCA_0p252_JD_2455853.7500000_illfrac_0.5938.fit
+python3 augmentator_5.py /media/pth/SSD2/SYNTHETIC_MOONIMAGES/PROGRESSION/ideal_LunarImg_SCA_0p267_JD_2455859.5000000_illfrac_0.0528.fit
+python3 augmentator_5.py /media/pth/SSD2/SYNTHETIC_MOONIMAGES/PROGRESSION/ideal_LunarImg_SCA_0p292_JD_2455848.7500000_illfrac_0.9584.fit
+python3 augmentator_5.py /media/pth/SSD2/SYNTHETIC_MOONIMAGES/PROGRESSION/ideal_LunarImg_SCA_0p434_JD_2455868.7500000_illfrac_0.5574.fit
+python3 augmentator_5.py /media/pth/SSD2/SYNTHETIC_MOONIMAGES/PROGRESSION/ideal_LunarImg_SCA_0p514_JD_2455850.7500000_illfrac_0.8522.fit
+python3 augmentator_5.py /media/pth/SSD2/SYNTHETIC_MOONIMAGES/PROGRESSION/ideal_LunarImg_SCA_0p556_JD_2455865.7500000_illfrac_0.2528.fit
+python3 augmentator_5.py /media/pth/SSD2/SYNTHETIC_MOONIMAGES/PROGRESSION/ideal_LunarImg_SCA_0p588_JD_2455842.2500000_illfrac_0.8354.fit

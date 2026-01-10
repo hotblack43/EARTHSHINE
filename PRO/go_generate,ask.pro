@@ -1,0 +1,3 @@
+.r generatemask.pro
+exit
+

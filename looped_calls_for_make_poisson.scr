@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Specify the path
+#path="/media/pth/SSD2/SYNTHETIC_MOONIMAGES/PROGRESSION/AUGMENTED/FOLDED/"
+path="OUTPUT/IDEAL/AUGMENTED/FOLDED/"
+
+# Specify the NOISY subdirectory
+subdir="NOISY"
+
+# Combine the path and subdir to create the output directory
+outdir="${path}${subdir}"
+
+# Print the path for debugging
+echo 'output path: ',$outdir
+
+# List all files in the specified path starting with "folded_"
+#ls ${path}folded_* > filesREMOVEME
+# List all files in the specified path starting with "folded_" and include the path
+find "${path}" -maxdepth 1 -type f -name 'folded_*' -exec echo "{}" \; > filesREMOVEME
+
+# Print the contents of filesREMOVEME for debugging
+echo "Debug: Contents of filesREMOVEME are $(cat filesREMOVEME)"
+
+# Iterate over each file listed in filesREMOVEME
+while IFS= read -r ifile; do
+    # Extract the filename without the path
+    filename=$(basename "${ifile}")
+    echo "filename:   $filename"
+    
+    # Create the output file path
+    outfile="${outdir}/${filename}"
+
+    # Replace the following command with the desired command to be applied to each file
+    echo "Processing file: ${ifile}"
+    echo "Output file: ${outfile}"
+    
+    # Example command: Replace this with your specific command
+    python3 make_poisson_4.py $ifile $outfile
+done < filesREMOVEME
+
+# Remove the temporary file
+rm filesREMOVEME
+

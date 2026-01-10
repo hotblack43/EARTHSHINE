@@ -1,0 +1,2 @@
+.r generateinput.pro
+exit

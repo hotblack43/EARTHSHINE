@@ -1,0 +1,11 @@
+data=get_data('p__VE1_')
+!P.color=fsc_color('white')
+histo,data(0,*),0.2,0.35,0.011
+!P.color=fsc_color('red')
+histo,data(0,*),0.2,0.35,0.011,/overplot
+print,mean(data(0,*))
+!P.color=fsc_color('blue')
+data=get_data('p__IRCUT_')
+histo,data(0,*),0.2,0.35,0.009,/overplot
+print,mean(data(0,*))
+end

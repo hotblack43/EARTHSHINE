@@ -1,0 +1,15 @@
+file='collected_results.dat'
+data=get_data(file)
+fmin=reform(data(0,*))
+p=reform(data(1,*))
+w=reform(data(2,*))
+ped=reform(data(3,*))
+testerr=reform(data(4,*))
+!P.MULTI=[0,3,2]
+!P.CHARSIZE=2
+histo,fmin,min(fmin),max(fmin),(max(fmin)-min(fmin))/25.,title='fmin'
+histo,p,min(p),max(p),(max(p)-min(p))/25.,title='p'
+histo,w,min(w),max(w),(max(w)-min(w))/25.,title='w'
+histo,ped,min(ped),max(ped),(max(ped)-min(ped))/25.,title='ped'
+histo,testerr,min(testerr),max(testerr),(max(testerr)-min(testerr))/25.,title='testerr'
+end

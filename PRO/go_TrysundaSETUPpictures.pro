@@ -1,0 +1,3 @@
+.r TrysundaSETUPpictures.pro
+exit
+

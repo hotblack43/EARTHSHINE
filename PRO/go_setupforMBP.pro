@@ -1,0 +1,2 @@
+.r setupforMBP.pro
+exit

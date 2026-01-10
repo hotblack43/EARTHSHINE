@@ -1,0 +1,10 @@
+n=100
+x=randomu(seed,n)
+shiftx=8
+y=shift(x,shiftx)
+lags=findgen(n)
+r=c_correlate(x,y,lags)
+rr=fft(r,-1)
+rrr=float(rr*conj(rr))
+plot_oo,lags,rrr,xrange=[1,n/2],xstyle=1
+end

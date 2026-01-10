@@ -1,0 +1,69 @@
+---
+title: "R Notebook"
+output: 
+  pdf_document: 
+    fig_height: 8
+  html_notebook: 
+    fig_height: 8
+---
+ 
+```{r}
+# Load the necessary libraries
+rm(list=ls())
+setwd("~/WORKSHOP/EARTHSHINE_CODE/")
+library(ggplot2)
+library(dplyr)
+
+# Read the data from the CSV file
+scientists <- read.csv("DATA/Scientists.csv", sep=";", header=T, fileEncoding = "UTF-8")
+
+# Sort the data by Birth year
+scientists <- scientists[order(scientists$Birth),]
+
+# Ensure the Name column is a factor and ordered according to the Birth year
+scientists$Name <- factor(scientists$Name, levels = scientists$Name)
+
+# Define the periods with bolder colors and assign a factor level to order the periods chronologically
+periods <- data.frame(
+  period = factor(c("High Middle Ages", "Late Middle Ages", "Renaissance", 
+                    "Reformation", "Baroque Period", "Enlightenment"), 
+                  levels = c("High Middle Ages", "Late Middle Ages", "Renaissance", 
+                             "Reformation", "Baroque Period", "Enlightenment")),
+  start = c(1200, 1300, 1536, 1500, 1600, 1750),
+  end = c(1300, 1500, 1660, 1650, 1750, 1800)
+)
+
+pp <- ggplot() +
+  # Add shaded areas for the cultural periods with bold colors
+  geom_rect(data = periods, aes(xmin = start, xmax = end, ymin = -Inf, ymax = Inf, fill = period), 
+            alpha = 0.3) +  # Set transparency for the rectangles, but not in the legend
+  # Set bold and distinct colors for the periods in both the plot and legend
+  scale_fill_manual(values = c("darkorange", "darkgreen", "royalblue", "deeppink", "goldenrod", "darkred"),
+                    guide = guide_legend(reverse = TRUE)) +  # Ensures order in legend matches plot order
+  # Plot lifetimes of scientists
+  geom_segment(data = scientists, aes(x = Birth, xend = Death, y = Name, yend = Name), size = 4, color = "skyblue") +  # Lifespan as a bar
+  geom_point(data = scientists, aes(x = Birth, y = Name), color = "blue", size = 3) +  # Mark the Birth year
+  geom_point(data = scientists, aes(x = Death, y = Name), color = "red", size = 3) +  # Mark the Death year
+  # Add period labels at the top
+  geom_text(data = periods, aes(x = (start + end) / 2, y = length(levels(scientists$Name)) + 1, label = period), 
+            size = 4, vjust = -0.5) +  # Adjust position slightly above the plot
+  labs(title = "", x = "Year", y = "") +
+  #labs(title = "Lifetimes of Earthshine Artists and Researchers with Cultural Periods", x = "Year", y = "") +
+  theme_minimal() +  # Clean theme
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
+        legend.title = element_blank(), legend.position = "right",  # Remove legend title
+        axis.text = element_text(size = 14),        # Increase axis text size
+        axis.title = element_text(size = 16),       # Increase axis title size (if applicable)
+        legend.text = element_text(size = 14),      # Increase legend text size
+        plot.title = element_text(size = 20),       # Increase plot title size (if a title is used)
+        plot.subtitle = element_text(size = 18),    # Increase subtitle size
+        strip.text = element_text(size = 14)) +     # Increase size of facet labels (if applicable)
+  scale_x_continuous(breaks = seq(1200, 2000, by = 100))  # Grid lines every 100 years
+
+
+pp
+png("FIGURES/lifetimes_chart.png",width=2200,height=1200,res=300)
+pp
+dev.off()
+```
+

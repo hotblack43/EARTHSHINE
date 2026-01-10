@@ -1,0 +1,45 @@
+---
+title: "Plot the calculated BDRF - 1"
+output: html_notebook
+---
+
+ 
+
+```{r}
+rm(list=ls())
+setwd("~/WORKSHOP/EARTHSHINE_CODE/")
+df <- read.csv("brdf_model.csv",sep=",",header=1)
+```
+
+# plot
+```{r}
+idx <- which(df$phase_angle_rad < 0.1)
+plot(df$emergence_angle_rad[idx],df$brdf_value[idx],pch=19,cex=0.2)
+```
+
+```{r}
+# Load required libraries
+library(rgl)
+library(akima)  # For interpolation
+
+# Load BRDF data from CSV
+brdf_data <- read.csv("brdf_model.csv")
+
+# Extract relevant columns
+incidence <- brdf_data$incidence_angle_rad
+emergence <- brdf_data$emergence_angle_rad
+phase_angle <- brdf_data$phase_angle_rad
+brdf_value <- brdf_data$brdf_value
+
+# Interpolate data to create a surface
+interp_data <- interp(x = incidence, y = emergence, z = brdf_value, duplicate = "strip")
+
+# Plot 3D surface
+persp3d(interp_data$x, interp_data$y, interp_data$z, col = "blue", alpha = 0.8,
+        xlab = "Incidence Angle (radians)", ylab = "Emergence Angle (radians)", zlab = "BRDF Value")
+
+title3d("3D Surface Plot of BRDF")
+
+```
+
+ 

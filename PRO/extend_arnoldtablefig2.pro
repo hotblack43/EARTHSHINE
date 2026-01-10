@@ -1,0 +1,9 @@
+file='arnoldtablefig2.dat'
+data=get_data(file)
+x=reform(data(0,*))
+y=reform(data(1,*))
+plot,x,y
+rayleigh=1./(x+450)^4
+res=linfit(rayleigh,y,yfit=yhat)
+oplot,x,yhat
+end

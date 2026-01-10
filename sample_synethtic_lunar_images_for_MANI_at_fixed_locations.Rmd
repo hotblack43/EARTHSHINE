@@ -1,0 +1,193 @@
+---
+title: "Mani - sampler - 1"
+output: 
+  pdf_document: 
+    fig_height: 8
+---
+
+Samples synthetic lunar images at some fixed SEL lon/lat box.
+
+```{r}
+rm(list=ls())
+setwd("~/WORKSHOP/EARTHSHINE_CODE/")
+library(stringr)
+library(FITSio)  # For reading FITS files
+# Set the directories
+base_directory <- "OUTPUT/IDEAL/"
+sunmask_directory <- "OUTPUT/SUNMASK/"
+lonlat_directory <- "OUTPUT/LONLAT_AND_ANGLES_IMAGES/"
+#
+
+#----------------------
+lon0 <- -68.6# Grimaldi crater in SEL coordinates
+lat0 <- -5.2
+delta <- .125  # Define the range around lon0, lat0
+position_str <- 'Grimaldi'
+#----------------------
+lon0 <- 40# Mare Procellarum in SEL coordinates
+lat0 <- +20
+delta <- .125  # Define the range around lon0, lat0
+position_str <- 'Procellarum'
+#----------------------
+lon0 <- -50# Highlands in SEL coordinates
+lat0 <- -30
+delta <- .125  # Define the range around lon0, lat0
+position_str <- 'Highland'
+# specify location
+lon0 <- -11.36 # Tycho crater in SEL coordinates
+lat0 <- -43.31
+delta <- .125  # Define the range around lon0, lat0
+position_str <- 'Tycho'
+```
+
+
+```{r}
+# Function to extract and print information from FITS files
+extract_fits_info <- function(filepath) {
+  cat("Processing file:", filepath, "\n")
+  
+  # Read the FITS file
+  fits_data <- readFITS(filepath)
+  
+  # Determine the number of images (layers) in the FITS file
+  dims <- as.array(dim(fits_data$imDat))
+  
+  if (dim(dims) == 2) {num_layers <- 1}
+  if (dim(dims) == 3) {num_layers <- dims[3]}
+  
+  # Print information about each image layer
+  for (i in seq_len(num_layers)) {
+    img_data <- fits_data$imDat[[i]]
+    img_dims <- dim(img_data)  # Get image dimensions
+    cat("Layer", i, "- Dimensions:", img_dims[1], "x", img_dims[2], "\n")
+    
+  }
+  
+}
+```
+
+
+```{r}
+
+results <- NULL
+# List all files in the base directory (IDEAL)
+ideal_files <- list.files(base_directory, pattern = "^ideal_LunarImg_SCA_.*\\.fit$", full.names = TRUE)
+
+# Loop through each file in the base directory
+for (file in ideal_files) {
+  # Extract the filename without the path
+  filename <- basename(file)
+  illumination_fraction <- as.numeric(str_match(filename, "_illfrac_([0-9.]+)\\.fit")[,2])
+  albedo <- as.numeric(sub("p", ".", str_match(filename, "_SCA_([0-9p]+)_")[,2]))
+  # Use regex to extract the Julian Date (JD) part
+  match <- str_match(filename, "ideal_LunarImg_SCA_.*_JD_([0-9]+\\.[0-9]+)_.*\\.fit")
+  
+  # If JD part is found, proceed
+  if (!is.na(match[2])) {
+    jd_string <- match[2]
+    #    cat("Julian Date (JD):", jd_string, "\n")
+    # get ideal image
+    ideal_path <- list.files(path="OUTPUT/IDEAL/",pattern=jd_string,full.names = T)
+    ideal_im <- readFITS(ideal_path)$imDat
+    # get sunmask image
+    sunmask_path <- list.files(path="OUTPUT/SUNMASK/",pattern=jd_string,full.names = T)
+    sunmask_im <- readFITS(sunmask_path)$imDat
+
+    # get Angles image
+    Angles_path <- list.files(path="OUTPUT/LONLAT_AND_ANGLES_IMAGES/",pattern=paste0("Angles_JD",jd_string),full.names = T)
+    fits_data <- readFITS(Angles_path)
+    Sunangle <- fits_data$imDat[,,1]
+    Outgoingangle <- fits_data$imDat[,,2]
+    # get lonlat image
+    lonlat_path <- list.files(path="OUTPUT/LONLAT_AND_ANGLES_IMAGES/",pattern=paste0("lonlatSELimage_JD",jd_string),full.names = T)
+    fits_data <- readFITS(lonlat_path)
+    longitudeSEL <- fits_data$imDat[,,1]
+    latitudeSEL  <- fits_data$imDat[,,2]
+    #
+    # Now sample at lon0,lat inside the box
+    valid_mask <- (longitudeSEL >= (lon0 - delta) & longitudeSEL <= (lon0 + delta) & latitudeSEL >= (lat0 - delta) & latitudeSEL <= (lat0 + delta))
+    
+    ideal_vals <- median(ideal_im[valid_mask],na.rm=T)
+    lon_vals <- median(longitudeSEL[valid_mask],na.rm=T)
+    lat_vals <- median(latitudeSEL[valid_mask],na.rm=T)
+    Sunangle_vals <- median(Sunangle[valid_mask],na.rm=T)
+    Outgoingangle_vals <- median(Outgoingangle[valid_mask],na.rm=T)
+    #
+    big <- cbind.data.frame(ideal_vals,lon_vals,lat_vals,Sunangle_vals,Outgoingangle_vals,illumination_fraction,albedo)
+    colnames(big) <- c("medradiance","medlonSEL","medlatSEL","medSunangle","medOutangle","IllumFract","Albedo")
+    
+    results <- rbind(results,big)
+    #
+  } # end loop over JD strings
+}
+# 
+results <- na.omit(results)
+#
+saveRDS(results,paste0("OUTPUT/median_lunar_radiances_sampled_at_",position_str,".rds"))
+write.csv(results,paste0("OUTPUT/median_lunar_radiances_sampled_at_",position_str,".csv"),quote = F, row.names = F)
+```
+
+# define plot function for single position
+```{r}
+plotthat <- function(position_str)
+{
+  yran <- c(1e-4,1e3)
+  medrads <- readRDS(paste0("OUTPUT/median_lunar_radiances_sampled_at_",position_str,".rds"))
+  #
+  plot(medrads$IllumFract,medrads$medradiance,log="y",ylab="Median radiance [SI]",xlab="Illumination fraction (i.e. lunar phase)",pch=19,cex=0.7,main=paste("Near ",position_str,"; One lunar cycle"),ylim=yran)
+  
+  #
+  plot(medrads$medOutangle/pi*180,medrads$medradiance,log="y",ylab="Median radiance [SI]",xlab="Angle to observer",pch=19,cex=0.7,main=paste("Near ",position_str,"; One lunar cycle"),ylim=yran)
+}
+```
+
+# Aaaand plot single positions in multiple panels
+```{r}
+par(mfrow=c(2,2))
+plotthat('Tycho')
+plotthat('Grimaldi')
+plotthat('Highland')
+plotthat('Procellarum')
+pdf("FIGURES/fixed_positions_plot.pdf")
+par(mfrow=c(2,2))
+plotthat('Tycho')
+plotthat('Grimaldi')
+plotthat('Highland')
+plotthat('Procellarum')
+dev.off()
+```
+
+# define plot function for two sleected positions
+```{r}
+plotthat2 <- function(position_str1,position_str2)
+{
+  yran <- c(1e-4,1e3)
+  xran <- c(00,90)
+  medrads1 <- readRDS(paste0("OUTPUT/median_lunar_radiances_sampled_at_",position_str1,".rds"))
+  medrads2 <- readRDS(paste0("OUTPUT/median_lunar_radiances_sampled_at_",position_str2,".rds"))
+  #
+  plot(medrads1$IllumFract,medrads1$medradiance,log="y",ylab="Median radiance [SI]",xlab="Illumination fraction (i.e. lunar phase)",pch=19,cex=0.7,main=paste(position_str1,' and ',position_str2,"; One lunar cycle"),ylim=yran)
+  points(medrads2$IllumFract,medrads2$medradiance,pch=19,cex=0.6,col='red')
+  
+  #
+  plot(medrads1$medOutangle/pi*180,medrads1$medradiance,log="y",ylab="Median radiance [SI]",xlab="Angle to observer",pch=19,cex=0.7,main=paste(position_str1,' and ',position_str2,"; One lunar cycle"),ylim=yran,xlim=xran)
+  points(medrads2$medOutangle/pi*180,medrads2$medradiance,pch=19,cex=0.6,col='red')
+}
+
+```
+
+# Aaaand plot two positions in multiple panels
+```{r}
+par(mfrow=c(2,2))
+plotthat2('Tycho','Grimaldi')
+plotthat2('Highland','Procellarum')
+png("FIGURES/two_fixed_positions_plot.png", width = 2400, height = 2400, res = 300)
+ par(mfrow=c(2,2))
+plotthat2('Tycho','Grimaldi')
+plotthat2('Highland','Procellarum')
+dev.off()
+```
+
+
+
+

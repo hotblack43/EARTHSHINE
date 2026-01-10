@@ -1,0 +1,224 @@
+---
+title: "Mani - sampler - 1"
+output: 
+  pdf_document: 
+    fig_height: 7
+---
+
+
+
+```{r}
+rm(list=ls())
+setwd("~/WORKSHOP/EARTHSHINE_CODE/")
+# Load necessary libraries
+library(stringr)
+```
+
+# loop
+```{r}
+# 
+# 
+# # Set the directory path
+# directory <- "OUTPUT/IDEAL/"
+# 
+# # List all files in the directory
+# files <- list.files(directory, pattern = "^ideal_LunarImg_SCA_.*\\.fit$", full.names = TRUE)
+# 
+# # Loop through each file
+# for (file in files) {
+#   # Extract the filename without the path
+#   filename <- basename(file)
+#   
+#   # Use regex to extract the Julian Date (JD) part
+#   match <- str_match(filename, "ideal_LunarImg_SCA_.*_JD_([0-9]+\\.[0-9]+)_.*\\.fit")
+#   
+#   # Check if we have a valid match and print the JD
+#   if (!is.na(match[2])) {
+#     cat("Julian Date (JD):", match[2], "\n")
+#   }
+# }
+
+```
+
+#
+```{r}
+# # Load necessary libraries
+# library(stringr)
+# 
+# # Set the directories
+# base_directory <- "OUTPUT/IDEAL"
+# sunmask_directory <- "OUTPUT/SUNMASK"
+# lonlat_directory <- "OUTPUT/LONLAT_AND_ANGLES_IMAGES"
+# 
+# # List all files in the base directory (IDEAL)
+# ideal_files <- list.files(base_directory, pattern = "^ideal_LunarImg_SCA_.*\\.fit$", full.names = TRUE)
+# 
+# # Loop through each file in the base directory
+# for (file in ideal_files) {
+#   # Extract the filename without the path
+#   filename <- basename(file)
+#   
+#   # Use regex to extract the Julian Date (JD) part
+#   match <- str_match(filename, "ideal_LunarImg_SCA_.*_JD_([0-9]+\\.[0-9]+)_.*\\.fit")
+#   
+#   # If JD part is found, proceed
+#   if (!is.na(match[2])) {
+#     jd_string <- match[2]
+#     cat("Julian Date (JD):", jd_string, "\n")
+#     
+#     # Search in the other directories for files that contain the same JD string
+#     # 1. Search in OUTPUT/SUNMASK/
+#     sunmask_files <- list.files(sunmask_directory, pattern = jd_string, full.names = TRUE)
+#     
+#     # 2. Search in OUTPUT/LONLAT_AND_ANGLES_IMAGES/
+#     lonlat_files <- list.files(lonlat_directory, pattern = jd_string, full.names = TRUE)
+#     
+#     # 3. Also search in OUTPUT/IDEAL/ again (for consistency, in case there are more matches)
+#     ideal_files_same_jd <- list.files(base_directory, pattern = jd_string, full.names = TRUE)
+#     
+#     # Print the found files
+#     cat("Files found in OUTPUT/SUNMASK/:\n")
+#     print(sunmask_files)
+#     
+#     cat("Files found in OUTPUT/LONLAT_AND_ANGLES_IMAGES/:\n")
+#     print(lonlat_files)
+#     
+#     cat("Files found in OUTPUT/IDEAL/:\n")
+#     print(ideal_files_same_jd)
+#     
+#     cat("\n---\n")
+#   }
+# }
+
+```
+
+
+```{r}
+# Function to extract and print information from FITS files
+extract_fits_info <- function(filepath) {
+  cat("Processing file:", filepath, "\n")
+  
+  # Read the FITS file
+  fits_data <- readFITS(filepath)
+  
+  # Determine the number of images (layers) in the FITS file
+  dims <- as.array(dim(fits_data$imDat))
+  
+  if (dim(dims) == 2) {num_layers <- 1}
+  if (dim(dims) == 3) {num_layers <- dims[3]}
+  
+  # Print information about each image layer
+  for (i in seq_len(num_layers)) {
+    img_data <- fits_data$imDat[[i]]
+    img_dims <- dim(img_data)  # Get image dimensions
+    cat("Layer", i, "- Dimensions:", img_dims[1], "x", img_dims[2], "\n")
+    
+  }
+  
+}
+```
+
+
+```{r}
+# Load necessary libraries
+library(stringr)
+library(FITSio)  # For reading FITS files
+results <- NULL
+# Set the directories
+base_directory <- "OUTPUT/IDEAL/"
+sunmask_directory <- "OUTPUT/SUNMASK/"
+lonlat_directory <- "OUTPUT/LONLAT_AND_ANGLES_IMAGES/"
+
+# List all files in the base directory (IDEAL)
+ideal_files <- list.files(base_directory, pattern = "^ideal_LunarImg_SCA_.*\\.fit$", full.names = TRUE)
+
+# Loop through each file in the base directory
+for (file in ideal_files) {
+  # Extract the filename without the path
+  filename <- basename(file)
+  illumination_fraction <- as.numeric(str_match(filename, "_illfrac_([0-9.]+)\\.fit")[,2])
+  albedo <- as.numeric(sub("p", ".", str_match(filename, "_SCA_([0-9p]+)_")[,2]))
+  # Use regex to extract the Julian Date (JD) part
+  match <- str_match(filename, "ideal_LunarImg_SCA_.*_JD_([0-9]+\\.[0-9]+)_.*\\.fit")
+  
+  # If JD part is found, proceed
+  if (!is.na(match[2])) {
+    jd_string <- match[2]
+#    cat("Julian Date (JD):", jd_string, "\n")
+    # get ideal image
+    ideal_path <- list.files(path="OUTPUT/IDEAL/",pattern=jd_string,full.names = T)
+    ideal_im <- readFITS(ideal_path)$imDat
+    # get sunmask image
+    sunmask_path <- list.files(path="OUTPUT/SUNMASK/",pattern=jd_string,full.names = T)
+    sunmask_im <- readFITS(ideal_path)$imDat
+    # get Angles image
+    Angles_path <- list.files(path="OUTPUT/LONLAT_AND_ANGLES_IMAGES/",pattern=paste0("Angles_JD",jd_string),full.names = T)
+    fits_data <- readFITS(Angles_path)
+    Sunangle <- fits_data$imDat[,,1]
+    Outgoingangle <- fits_data$imDat[,,2]
+    # get lonlat image
+    lonlat_path <- list.files(path="OUTPUT/LONLAT_AND_ANGLES_IMAGES/",pattern=paste0("lonlatSELimage_JD",jd_string),full.names = T)
+    fits_data <- readFITS(lonlat_path)
+    longitudeSEL <- fits_data$imDat[,,1]
+    latitudeSEL  <- fits_data$imDat[,,2]
+    #
+    # Now sample across the surface
+    n <- 40 # n places across the image (i.e. less on disc)
+    idx <- sample(1:512,n)
+    jdx <- sample(1:512,n)
+    ideal_vals <- ideal_im[idx,jdx]
+    lon_vals <- longitudeSEL[idx,jdx]
+    lat_vals <- latitudeSEL[idx,jdx]
+    Sunangle_vals <- Sunangle[idx,jdx]
+    Outgoingangle_vals <- Outgoingangle[idx,jdx]
+    big <- cbind.data.frame(as.vector(ideal_vals),as.vector(lon_vals),as.vector(lat_vals),as.vector(Sunangle_vals),as.vector(Outgoingangle_vals),illumination_fraction,albedo)
+    colnames(big) <- c("radiance","lonSEL","latSEL","Sunangle","Outangle","IllumFract","Albedo")
+    # skip the sky ones
+    ldx <- which(big$lonSEL != -999 & big$latSEL != -999)
+    big <- big[ldx,]
+    results <- rbind(results,big)
+    #
+  } # end loop over JD strings
+}
+#
+saveRDS(results,"OUTPUT/lunar_radiances_sampled.rds")
+write.csv(results,"OUTPUT/lunar_radiances_sampled.csv",quote = F, row.names = F)
+```
+
+# plots
+```{r}
+
+plot(results$lonSEL,results$latSEL,pch=19,cex=0.1,xlab='SEL longitude',ylab='SEL latitude',xlim=c(-180,180),ylim=c(-90,90))
+
+# radiance histogram
+png("FIGURES/radiance_plots.png", width = 2480, height = 3508, res = 300)
+par(mfrow=c(3,2))
+# BS
+ldx <- which(results$Sunangle < pi/2) # i.e. the BS
+kdx <- which(results$Sunangle > pi/2) # i.e. the DS
+#
+# DS
+plot(density(results$radiance[kdx]),log="x",xlab="radiance sampled [SI] Dark side",main='')
+#
+plot(density(results$radiance[ldx]),log="x",xlab="radiance sampled [SI] Bright side",main='')
+
+# plot DS against albedo
+plot(results$Albedo[kdx],results$radiance[kdx],log='y',main='Dark side radiances against terrestrial albedo',xlab='Albedo',ylab="radiance [SI]",pch=19,cex=0.3)
+# plot BS against albedo
+plot(results$Albedo[ldx],results$radiance[ldx],log='y',main='Bright side radiances against terrestrial albedo',xlab='Albedo',ylab="radiance [SI]",pch=19,cex=0.3)
+#
+# plot DS against illumination fraction (i.e phase 1=Full Moon)
+plot(results$IllumFract[kdx],results$radiance[kdx],log='y',main='Dark side radiances against phase',xlab='Lunar illumination fraction',ylab="radiance [SI]",pch=19,cex=0.3)
+# plot BS against illumination fraction (i.e phase 1=Full Moon)
+plot(results$IllumFract[ldx],results$radiance[ldx],log='y',main='Bright side radiances against phase',xlab='Lunar illumination fraction',ylab="radiance [SI]",pch=19,cex=0.3)
+dev.off()
+```
+
+
+
+# big plot (sloooow)
+```{r}
+#plot(results)
+```
+
+

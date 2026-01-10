@@ -1,0 +1,25 @@
+file='pcterrorfromPSF.dat'
+data=get_data(file)
+ph=reform(data(0,*))
+alfa=reform(data(1,*))
+err=reform(data(2,*))
+levs=2^findgen(9)
+!X.range=[90,145]
+!y.range=[1.6,1.8]
+!X.style=3
+!X.title='Abs. lunar phase'
+!y.title='!7a!3'
+!P.CHARSIZE=2
+xvalues=findgen(10)*5+90
+yvalues=findgen(10)*2/100.+1.6
+help,err,abs(ph),alfa
+;surf=MIN_CURVE_SURF(err,abs(ph),alfa,nx=10,ny=10);xvalues=xvalues,yvalues=yvalues)
+;contour,c_labels=findgen(9)*0+1,surf,xvalues,yvalues,levels=levs
+contour,c_labels=findgen(9)*0+1,/irregular,err,abs(ph),alfa,levels=levs
+;
+data=get_data('alfas_.dat')
+jd=data(0,*)
+alfa=data(1,*)
+ph=data(2,*)
+oplot,ph,alfa,psym=7,color=fsc_color('red')
+end

@@ -1,0 +1,84 @@
+---
+title: "Digital Clementine atlas"
+output: html_notebook
+---
+
+
+Does not work.
+
+ 
+```{r}
+rm(list=ls())
+setwd("~/WORKSHOP/EARTHSHINE_CODE/")
+library(akima)
+library(rgl)
+atlas <- read.csv('./Eshine/data_eshine/SPECIAL.HIRES_750_3ppd_scaled_to_WIldey.alb',sep="")
+atlas <- as.matrix(atlas)
+#atlas <- t(atlas)
+lon <- (1:dim(atlas)[2])/(dim(atlas)[2])*360-180
+lat <- (1:dim(atlas)[1])/(dim(atlas)[1])*180-90
+#image(lat,lon,atlas)
+```
+
+
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+
+# Load your data
+atlas <- read.csv('./Eshine/data_eshine/SPECIAL.HIRES_750_3ppd_scaled_to_WIldey.alb', sep = "")
+atlas <- as.matrix(atlas)
+
+# Define the map size
+n_long <- dim(atlas)[2]
+n_lat <- dim(atlas)[1]
+
+# Create a grid for the image
+lon <- seq(-180, 180, length.out = n_long)
+lat <- seq(-90, 90, length.out = n_lat)
+
+# Create a data frame for the lunar map
+img_data <- expand.grid(lon = lon, lat = lat)
+img_data$value <- as.vector(atlas)
+
+# Transform coordinates for Mollweide projection
+img_data$mollweide_x <- 2 * img_data$lon * (pi / 180) * sqrt(2)  # x-coordinates
+img_data$mollweide_y <- sqrt(2) * sin(img_data$lat * (pi / 180))  # y-coordinates
+
+# Create the Mollweide projection plot
+gg <- ggplot(img_data, aes(x = mollweide_x, y = mollweide_y, fill = value)) +
+  geom_raster() +
+  coord_fixed() +
+  scale_fill_gradient(low = "black", high = "white") +  # Adjust colors as needed
+  theme_void() +
+  ggtitle("Mollweide Projection of Moon Map")
+
+# Prepare data for grid lines and labels
+grid_lon <- seq(-180, 180, by = 20)
+grid_lat <- seq(-90, 90, by = 10)
+
+# Add grid lines and labels
+gg +
+  geom_hline(yintercept = sqrt(2) * sin(grid_lat * (pi / 180)), color = "grey", linetype = "dotted") +
+  geom_vline(xintercept = 2 * grid_lon * (pi / 180) * sqrt(2), color = "grey", linetype = "dotted") +
+  
+  # Longitude labels
+  geom_text(data = data.frame(lon = grid_lon, 
+                               label = grid_lon), 
+            aes(x = 2 * lon * (pi / 180) * sqrt(2), 
+                y = -1.1, 
+                label = label), 
+            vjust = 1, size = 3, color = "black") +
+
+  # Latitude labels
+  geom_text(data = data.frame(lat = grid_lat, 
+                               label = grid_lat), 
+            aes(x = -2 * sqrt(2) * pi, 
+                y = sqrt(2) * sin(lat * (pi / 180)), 
+                label = label), 
+            hjust = 1, size = 3, color = "black")
+
+```
+ 
+ 

@@ -1,0 +1,19 @@
+FROM primeimages/gdl
+
+# Install x11-apps
+#RUN apt-get update &&  apt-get install -y sudo x11-apps
+# Install x11-apps
+RUN dnf install -y sudo xorg-x11-apps
+
+
+
+# Copy files to container
+COPY *.pro /
+COPY tester.py /
+
+# Set the working directory
+#WORKDIR /app
+
+# Run the IDL script
+CMD ["gdl", "go_spawn_tester.pro"]
+

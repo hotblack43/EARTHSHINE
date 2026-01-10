@@ -1,0 +1,29 @@
+FUNCTION get_data,filename
+n=0L
+n=get_file_size(filename)
+rnd_filename,size_filename
+spawn,/SH,'wc '+filename+' > '+size_filename
+get_lun,uuu
+openr,uuu,size_filename
+nn=0L
+m=0L
+readf,uuu,nn,m
+close,uuu
+free_lun,uuu
+ncols=double(m)/double(nn)
+if (ncols ne fix(ncols)) then begin
+	print,ncols,fix(ncols),' while reading ',filename
+	print,' check out the file "size_filename"'
+	spawn,/SH,' cat '+size_filename
+	stop
+endif
+data=dblarr(ncols,n)
+get_lun,uuu
+openr,uuu,filename
+readf,uuu,data
+close,uuu
+free_lun,uuu
+get_data=data
+spawn,/SH,'rm '+size_filename
+return,get_data
+end

@@ -1,0 +1,109 @@
+---
+title: "Sampling MANI for Frederic"
+output: 
+  pdf_document: 
+    fig_height: 8
+---
+
+
+```{r}
+rm(list=ls())
+setwd("~/WORKSHOP/EARTHSHINE_CODE/")
+df <- readRDS("~/Downloads/lunar_radiances_sampled.rds")
+colnames(df)
+```
+
+# FM: loop over values in Frederic's files
+```{r}
+# select FM all longitudes at nadir
+idx <- which(df$IllumFract > 0.96 & df$radiance > 1
+             & abs(df$latSEL) < 5) # all FM rows - as seen from Earth
+dd <- df[idx,]
+
+# Create the histogram object without plotting
+h <- hist(dd$radiance, breaks = 401, plot = FALSE)
+write.csv(dd, file = "OUTPUT/Frederic_data_FM_along_equator.csv", row.names = FALSE)
+
+# Set x-limits to cover the full range of your desired ticks
+xlims <- c(1e-1, 1e3)
+
+# Plot the histogram with a logarithmic x-axis, suppressing the default axis
+plot(h, log = "x", xaxt = "n",
+     xlab = "radiance [W/m^2/sr]",
+     ylab = "density",
+     main = "At Full Moon, whole disk, realistic single scattering lunar albedo",
+     xlim = xlims)
+abline(v=150,col=2,lwd=3)
+# Add an x-axis with labels at 1e-1, 1e0, 1e1, 1e2, and 1e3
+ticks <- c(1e-1, 1e0, 1e1, 1e2, 1e3)
+axis(1, at = ticks, labels = c("1e-1", "1e0", "1e1", "1e2", "1e3"))
+
+
+
+
+png("FIGURES/MRD-001_Full_Moon_figure_compare_to_Frederic.png",
+    width = 1600,      # set desired width in pixels
+    height = 1200,     # set desired height in pixels
+    res = 300,         # resolution in dots per inch (dpi)
+    pointsize = 16)    # default text size
+# Plot the histogram with a logarithmic x-axis, suppressing the default axis
+plot(h, log = "x", xaxt = "n",
+     xlab = "radiance [W/m^2/sr]",
+     ylab = "density",
+     main = "At Full Moon, whole disk, realistic single scattering lunar albedo",
+     xlim = xlims)
+abline(v=150,col=2,lwd=3)
+# Add an x-axis with labels at 1e-1, 1e0, 1e1, 1e2, and 1e3
+ticks <- c(1e-1, 1e0, 1e1, 1e2, 1e3)
+axis(1, at = ticks, labels = c("1e-1", "1e0", "1e1", "1e2", "1e3"))
+
+dev.off()
+
+
+
+```
+
+# HM: loop over values in Frederic's files
+```{r}
+# select FM all longitudes at nadir
+idx <- which(df$IllumFract > 0.45 & df$IllumFract < 0.55 
+             & abs(df$latSEL) < 5) # all FM rows - as seen from Earth
+ddd <- df[idx,]
+# Create the histogram object without plotting
+h <- hist(ddd$radiance, breaks = 41, plot = FALSE)
+write.csv(ddd, file = "OUTPUT/Frederic_data_HM_along_equator.csv", row.names = FALSE)
+# Set x-limits to cover the full range of your desired ticks
+xlims <- c(1e-1, 1e3)
+# Plot the histogram with a logarithmic x-axis, suppressing the default axis
+plot(h, log = "x", xaxt = "n",
+     xlab = "radiance [W/m^2/sr]",
+     ylab = "density",
+     main = "At Full Moon, whole disk, realistic single scattering lunar albedo",
+     xlim = xlims,
+     ylim=c(0,80))
+#abline(v=150,col=2,lwd=3)
+# Add an x-axis with labels at 1e-1, 1e0, 1e1, 1e2, and 1e3
+ticks <- c(1e-1, 1e0, 1e1, 1e2, 1e3)
+axis(1, at = ticks, labels = c("1e-1", "1e0", "1e1", "1e2", "1e3"))
+#-------------------------------
+png("FIGURES/MRD-001_Half_Moon_figure_compare_to_Frederic.png",
+    width = 1600,      # set desired width in pixels
+    height = 1200,     # set desired height in pixels
+    res = 300,         # resolution in dots per inch (dpi)
+    pointsize = 16)    # default text size
+# Plot the histogram with a logarithmic x-axis, suppressing the default axis
+plot(h, log = "x", xaxt = "n",
+     xlab = "radiance [W/m^2/sr]",
+     ylab = "density",
+     main = "At Full Moon, whole disk, realistic single scattering lunar albedo",
+     xlim = xlims,
+     ylim=c(0,80))
+#abline(v=150,col=2,lwd=3)
+# Add an x-axis with labels at 1e-1, 1e0, 1e1, 1e2, and 1e3
+axis(1, at = ticks, labels = c("1e-1", "1e0", "1e1", "1e2", "1e3"))
+
+dev.off()
+
+
+
+```

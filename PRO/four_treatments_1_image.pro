@@ -1,0 +1,9 @@
+files=['/data/pth/DARKCURRENTREDUCED/SELECTED_1/2456045.7882919MOON_V_AIR_DCR.fits',$
+'/data/pth/DARKCURRENTREDUCED/SELECTED_2/2456045.7882919MOON_V_AIR_DCR.fits',$
+'/data/pth/DARKCURRENTREDUCED/SELECTED_3/2456045.7882919MOON_V_AIR_DCR.fits',$
+'/data/pth/DARKCURRENTREDUCED/SELECTED_4/2456045.7882919MOON_V_AIR_DCR.fits']
+im1=readfits(files(0),h,/silent)
+im2=readfits(files(1),h,/silent)
+im3=readfits(files(2),h,/silent)
+im4=readfits(files(3),h,/silent)
+end
