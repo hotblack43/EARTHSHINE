@@ -2,3 +2,10 @@
 .Rhistory
 .RData
 .Ruserdata
+brdf_model.csv
+*.csv
+*.fits
+*.nc
+*.h5
+*.rds
+
