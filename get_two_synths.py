@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-make_twosynths.py
+make_twosynths.py 
 
 Python rewrite of your IDL setup:
 
