@@ -46,8 +46,7 @@
 ;	Converted to IDL V5.0   W. Landsman   September 1997
 ;-            
 
-;FUNCTION valid_num, string, value, INTEGER=integer
-FUNCTION VALID_NUM, string, value, INTEGER=integer
+FUNCTION valid_num, string, value, INTEGER=integer
 
 		;**** Set defaults for keyword ****
   IF NOT (KEYWORD_SET(integer)) THEN integer=0

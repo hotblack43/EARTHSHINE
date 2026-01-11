@@ -1,3 +1,0 @@
-.r generate_many_unconvolved_lunar_images.pro
-generate_many_unconvolved_lunar_images
-exit

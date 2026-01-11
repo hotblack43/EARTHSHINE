@@ -1,3 +1,0 @@
-.r settings.pro
-exit
-

@@ -1,2 +1,0 @@
-.r makePTHhisto.pro
-exit

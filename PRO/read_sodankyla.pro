@@ -1,9 +1,0 @@
-file='02836_1989-1994.csv'
-data=get_data(file)
-stat=reform(data(0,*))
-year=reform(data(1,*))
-month=reform(data(2,*))
-day=reform(data(3,*))
-hour=reform(data(4,*))
-n=reform(data(5,*))
-end

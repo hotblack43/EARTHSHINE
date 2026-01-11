@@ -1,2 +1,0 @@
-.r compareTWOimages.pro
-exit

@@ -1,2 +1,0 @@
-.r alignmodelwithobservation.pro
-exit

@@ -1,2 +1,0 @@
-.r setUP-bootstrapped_sample_of_images_from_a_stack.pro
-exit

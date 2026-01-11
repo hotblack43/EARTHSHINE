@@ -1,2 +1,0 @@
-eshine_special
-exit

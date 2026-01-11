@@ -1,3 +1,0 @@
-.r make_IDEAL_images_of_Moon_from_list.pro
-make_IDEAL_images_of_Moon_from_list
-exit

@@ -1,3 +1,0 @@
-.r generate_model_image_just_like_observed_image.pro
-exit
-

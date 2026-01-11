@@ -1,2 +1,0 @@
-remove_scattered_light_v15.pro
-exit

@@ -1,1 +1,0 @@
-path='/data/pth/DARKCURRENTREDUCED/SELECTED_1/'

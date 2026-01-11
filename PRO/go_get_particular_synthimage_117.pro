@@ -1,2 +1,0 @@
-eshine_16_particularsynthimage_177
-exit

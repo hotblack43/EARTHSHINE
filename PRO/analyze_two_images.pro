@@ -1,9 +1,0 @@
-bias=10.
-im1=readfits('ideal_starting_image.fit')+bias
-im2=readfits('Corrected_image__long_KINGforwardIDEALIZED.fit')+bias
-diff=im2-im1
-pct=im2*0.0
-plot,im1(*,200)
-oplot,im2(*,200),linestyle=2
-plot,diff(*,200)/im1(*,200)*100.0
-end

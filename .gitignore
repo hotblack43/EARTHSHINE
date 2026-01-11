@@ -8,4 +8,6 @@ brdf_model.csv
 *.nc
 *.h5
 *.rds
-
+*.randomfile
+OLD/*
+PRO/*

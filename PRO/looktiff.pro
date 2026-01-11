@@ -1,9 +1,0 @@
-file='MOON_stacked_May312009.tif'
-im=read_tiff(file)
-r=reform(im(0,*,*))*1.0d0
-g=reform(im(1,*,*))*1.0d0
-b=reform(im(2,*,*))*1.0d0
-writefits,'r.fit',r
-writefits,'g.fit',g
-writefits,'b.fit',b
-end

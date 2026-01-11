@@ -1,9 +1,0 @@
-im=readfits('/data/pth/DARKCURRENTREDUCED/SELECTED_1/2455945.1776847MOON_V_AIR_DCR.fits',h)
-tvscl,im
-a=get_kbrd()
-z=im/smooth(im,5)
-tvscl,z
-a=get_kbrd()
-tvscl,hist_equal(laplacian(z))
-a=get_kbrd()
-end

@@ -1,9 +1,0 @@
-obs=readfits('observed_image.fits')
-im1_folded=readfits('im1_folded.fits') 
-im1_folded=im1_folded/total(im1_folded,/double)*total(obs,/double)
-trialout117=readfits('trialout117.fits')
-trialout117=trialout117/total(trialout117,/double)*total(obs,/double)
-print,total(obs,/double)
-print,total(im1_folded,/double)
-print,total(trialout117,/double)
-end

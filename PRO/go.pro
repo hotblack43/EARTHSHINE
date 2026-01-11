@@ -1,3 +1,0 @@
-.r generate_many_convolved_ideal_images_for_MachineLearning_6_GDLversion.pro
-generate_many_convolved_ideal_images_for_MachineLearning_6_GDLversion
-exit

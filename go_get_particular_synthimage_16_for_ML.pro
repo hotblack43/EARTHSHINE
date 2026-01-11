@@ -1,3 +1,0 @@
-.r eshine_16_particularsynthimage_assigningIMAGEparametersinfiles.pro
-eshine_16_particularsynthimage_assigningIMAGEparametersinfiles
-exit

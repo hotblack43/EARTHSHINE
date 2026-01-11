@@ -1,3 +1,0 @@
-.r GenealogiPICTURES.pro
-exit
-

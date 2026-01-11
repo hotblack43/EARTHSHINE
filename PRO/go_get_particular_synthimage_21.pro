@@ -1,2 +1,0 @@
-eshine_21_particularsynthimage_assigningIMAGEparametersinfiles
-exit

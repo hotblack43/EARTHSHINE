@@ -1,2 +1,0 @@
-.r gridsearch.pro
-exit

@@ -1,3 +1,0 @@
-.r compare.pro
-exit
-

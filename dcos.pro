@@ -1,4 +1,5 @@
 
 FUNCTION dcos, x
-  return, cos(x*(!PI/180.0))
+  return, cos(x*!dtor)
+  ;  return, cos(x*(!PI/180.0))
 END

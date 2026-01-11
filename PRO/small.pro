@@ -1,9 +1,0 @@
-factor=3
-openr,12,strcompress('Moon.'+string(fix(factor)),/remove_all)
-l=lonarr(2)
-readu,12,l
-im3=bytarr(l)
-readu,12,im3
-close,12
-tvscl,im3
-end

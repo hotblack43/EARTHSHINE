@@ -1,9 +1,0 @@
-im=readfits('testim.fits')
-l=size(im,/dimensions)
-meshgrid,l(0),l(1),x,y
-radius=sqrt((x-256)^2+(y-256)^2)
-logradius=alog10(radius)
-help
-end
-help
-end
