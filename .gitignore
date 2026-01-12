@@ -5,6 +5,7 @@
 brdf_model.csv
 *.csv
 *.fits
+*.fit
 *.nc
 *.h5
 *.rds
