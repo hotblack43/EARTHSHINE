@@ -6,6 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "astropy>=7.2.0",
+    "astroquery>=0.4.11",
+    "matplotlib>=3.10.8",
     "numpy>=2.4.1",
     "scikit-image>=0.26.0",
     "scipy>=1.16.3",
