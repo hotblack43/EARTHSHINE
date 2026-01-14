@@ -13,9 +13,11 @@ from astropy.io import fits
 
 
 # ---------------- CONFIG DEFAULTS ----------------
-DEFAULT_OBS_DIR = Path("OBSERVED_STACKS")  # change or pass --obs-dir
+DEFAULT_OBS_DIR = Path("CENTERED")  # change or pass --obs-dir
 DEFAULT_SYN_DIR = Path("/dmidata/projects/nckf/earthshine/WORKSHOP/OUTPUT/SYNTHSTACKS")
+DEFAULT_SYN_DIR = Path("OUTPUT/CUBES")
 DEFAULT_OUT_DIR = Path("/dmidata/projects/nckf/earthshine/WORKSHOP/OUTPUT/COMBINED")
+DEFAULT_OUT_DIR = Path("OUTPUT/COMBINED")
 DEFAULT_LOGFILE = DEFAULT_OUT_DIR / "glue_warnings.log"
 
 # JD pattern: look for something like 2455748.7576445 (7 decimals typical)

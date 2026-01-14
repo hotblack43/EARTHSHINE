@@ -12,3 +12,7 @@ brdf_model.csv
 *.randomfile
 OLD/*
 PRO/*
+Iearth.now
+photometry.dat
+nameofparticularsynthimage.txt
+OUTPUT/

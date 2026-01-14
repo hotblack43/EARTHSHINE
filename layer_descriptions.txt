@@ -1,0 +1,11 @@
+Observed combined image with BC and DC.
+Interpolated dark frame from adjacent DF.
+LAYER01 minus LAYER02.
+Synethtic image with albedo=0
+Synethtic image with albedo=1
+Selenographic longitude (degrees)
+Selenographic latitude (degrees)
+Sun angle (radians)
+Angle to geocenter (radians)
+Angle to observer (radians)
+Sunmask (0/1)
