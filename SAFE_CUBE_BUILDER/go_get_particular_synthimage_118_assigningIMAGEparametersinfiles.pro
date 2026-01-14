@@ -1,0 +1,3 @@
+.r eshine_21_particularsynthimage_assigningIMAGEparametersinfiles.pro
+eshine_21_particularsynthimage_assigningIMAGEparametersinfiles
+exit
