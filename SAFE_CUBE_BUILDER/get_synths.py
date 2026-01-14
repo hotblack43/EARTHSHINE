@@ -4,6 +4,7 @@ from __future__ import annotations
 import os
 import signal
 import subprocess
+import glob
 from pathlib import Path
 from typing import List, Tuple
 
@@ -12,13 +13,23 @@ from astropy.io import fits
 
 
 # --------- CONFIG ---------
-GO_PRO = "go.pro"                 # the command file you now run with: gdl go.pro
+GO_PRO = "go.pro"                 # run with: gdl go.pro
 JD_FILE = "JDtouseforSYNTH"       # list of JDs to process (one per line)
 USETHIS_JD_FILE = "usethisJD"     # IDL reads this
-OUTPUT_DIR = Path("/dmidata/projects/nckf/earthshine/WORKSHOP/EARTHSHINE/OUTPUT/CUBES/")       # where IDL writes products
+
+# Where IDL/GDL writes its OUTPUT products (absolute path is OK)
+OUTPUT_DIR = Path("OUTPUT")
+
+# Where THIS script should write the stacked cubes
+STACK_DIR = OUTPUT_DIR / "/dmidata/projects/nckf/earthshine/WORKSHOP/EARTHSHINE/OUTPUT/CUBES"
+STACK_DIR = OUTPUT_DIR / "CUBES"
 
 OUT_PATTERN = "synthetic_stack_JD{jdtag}.fits"
+
+AUX_DIR = OUTPUT_DIR / "LONLAT_AND_ANGLES_IMAGES"
+
 # --------------------------
+
 
 def rename_layer_labels(names: List[str]) -> List[str]:
     out = []
@@ -39,7 +50,7 @@ def rename_layer_labels(names: List[str]) -> List[str]:
 
 
 def jd_tag(jd: float) -> str:
-    # match your filenames: 2455748.7576445 (7 decimals)
+    # Matches your filenames, e.g. 2455748.7576445 (7 decimals)
     return f"{jd:.7f}"
 
 
@@ -84,10 +95,14 @@ def run_gdl_go() -> None:
 
 
 def find_one(pattern: str) -> Path:
-    hits = sorted(Path().glob(pattern))
+    """
+    Find the first file matching a glob pattern.
+    Uses glob.glob() so absolute patterns work on Python 3.13+.
+    """
+    hits = sorted(glob.glob(pattern))
     if not hits:
         raise FileNotFoundError(f"No files matched: {pattern}")
-    return hits[0]
+    return Path(hits[0])
 
 
 def read_fits_any(path: Path) -> np.ndarray:
@@ -99,14 +114,13 @@ def read_fits_any(path: Path) -> np.ndarray:
         data = hdul[0].data
         if data is None:
             raise ValueError(f"No data in {path}")
-        arr = np.asarray(data, dtype=np.float32)
-    return arr
+        return np.asarray(data, dtype=np.float32)
 
 
 def to_layers(arr: np.ndarray, name_prefix: str) -> Tuple[List[np.ndarray], List[str]]:
     """
     Convert 2D or 3D array into a list of 2D layers plus layer names.
-    FITS cubes will come in as (nlayer, ny, nx) in numpy here.
+    FITS cubes should come in as (nlayer, ny, nx) in numpy here.
     """
     if arr.ndim == 2:
         return [arr], [name_prefix]
@@ -120,12 +134,15 @@ def to_layers(arr: np.ndarray, name_prefix: str) -> Tuple[List[np.ndarray], List
 def stack_and_write(jd: float) -> Path:
     jdstr = jd_tag(jd)
 
-    # ---- locate files by JD ----
-    f_ideal0 = find_one(f"OUTPUT/IDEAL/ideal_LunarImg_SCA_*0p000*JD*{jdstr}*.fit*")
-    f_ideal1 = find_one(f"OUTPUT/IDEAL/ideal_LunarImg_SCA_*1p000*JD*{jdstr}*.fit*")
-    f_lonlat = find_one(f"OUTPUT/lonlatSELimage_JD{jdstr}.fit*")
-    f_angles = find_one(f"OUTPUT/Angles_JD{jdstr}.fit*")
-    f_sunmsk = find_one(f"OUTPUT/SUNMASK/*{jdstr}*.fit*")
+    # ---- locate files by JD (use OUTPUT_DIR consistently) ----
+    f_ideal0 = find_one(str(OUTPUT_DIR / f"IDEAL/ideal_LunarImg_SCA_*0p000*JD*{jdstr}*.fit*"))
+    f_ideal1 = find_one(str(OUTPUT_DIR / f"IDEAL/ideal_LunarImg_SCA_*1p000*JD*{jdstr}*.fit*"))
+#   f_lonlat = find_one(str(OUTPUT_DIR / f"lonlatSELimage_JD{jdstr}.fit*"))
+#   f_angles = find_one(str(OUTPUT_DIR / f"Angles_JD{jdstr}.fit*"))
+    f_lonlat = find_one(str(AUX_DIR / f"lonlatSELimage_JD{jdstr}.fit*"))
+    f_angles = find_one(str(AUX_DIR / f"Angles_JD{jdstr}.fit*"))
+
+    f_sunmsk = find_one(str(OUTPUT_DIR / f"SUNMASK/*{jdstr}*.fit*"))
 
     # ---- read arrays ----
     a_ideal0 = read_fits_any(f_ideal0)
@@ -138,24 +155,14 @@ def stack_and_write(jd: float) -> Path:
     layers: List[np.ndarray] = []
     names: List[str] = []
 
-    # Synthetic images (single layers)
-    l, n = to_layers(a_ideal0, "ideal_sca0")
-    layers += l; names += n
+    l, n = to_layers(a_ideal0, "ideal_sca0"); layers += l; names += n
+    l, n = to_layers(a_ideal1, "ideal_sca1"); layers += l; names += n
+    l, n = to_layers(a_lonlat, "lonlat");     layers += l; names += n
+    l, n = to_layers(a_angles, "angles");     layers += l; names += n
+    l, n = to_layers(a_sunmsk, "sunmask");    layers += l; names += n
 
-    l, n = to_layers(a_ideal1, "ideal_sca1")
-    layers += l; names += n
-
-    # Lon/lat cube (expect 2 layers)
-    l, n = to_layers(a_lonlat, "lonlat")
-    layers += l; names += n
-
-    # Angles cube (2 or 3 layers, depending on your core)
-    l, n = to_layers(a_angles, "angles")
-    layers += l; names += n
-
-    # Sunmask (single layer)
-    l, n = to_layers(a_sunmsk, "sunmask")
-    layers += l; names += n
+    # Rename layer labels to your preferred names
+    names = rename_layer_labels(names)
 
     # ---- sanity: all layers 2D and same shape ----
     shape = layers[0].shape
@@ -167,7 +174,10 @@ def stack_and_write(jd: float) -> Path:
 
     cube = np.stack(layers, axis=0).astype(np.float32, copy=False)
 
-    out = Path(OUT_PATTERN.format(jdtag=jdstr))
+    # ---- write output into STACK_DIR (under OUTPUT_DIR) ----
+    STACK_DIR.mkdir(parents=True, exist_ok=True)
+    out = STACK_DIR / OUT_PATTERN.format(jdtag=jdstr)
+
     hdu = fits.PrimaryHDU(cube)
     hdr = hdu.header
     hdr["JD"] = (float(jd), "Julian Date for this synthetic stack")
