@@ -1393,13 +1393,13 @@ sxaddpar, header55, 'PhsAn_N', phase_angle_M, ' Sun-Moon-Earth angle'
 sxaddpar, header55, 'Isun', Isun , ' Sun intensity'
 sxaddpar, header55, 'Iearth', Iearth, ' Earthshine intensity'
 
-writefits,strcompress('OUTPUT/lonlatSELimage_JD'+string(JD,format='(f15.7)')+'.fits',/remove_all),lonlatSELimage,header55
+writefits,strcompress('OUTPUT/LONLAT_AND_ANGLES_IMAGES/lonlatSELimage_JD'+string(JD,format='(f15.7)')+'.fits',/remove_all),lonlatSELimage,header55
 get_lun,chj
 openw,chj,'Iearth.now'
 printf,chj,Iearth
 close,chj
 free_lun,chj
 
-writefits,strcompress('OUTPUT/Angles_JD'+string(JD,format='(f15.7)')+'.fits',/remove_all),theta_i_and_r_and_phi,header55
+writefits,strcompress('OUTPUT/LONLAT_AND_ANGLES_IMAGES/Angles_JD'+string(JD,format='(f15.7)')+'.fits',/remove_all),theta_i_and_r_and_phi,header55
 
 END

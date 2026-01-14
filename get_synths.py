@@ -22,8 +22,12 @@ OUTPUT_DIR = Path("OUTPUT")
 
 # Where THIS script should write the stacked cubes
 STACK_DIR = OUTPUT_DIR / "/dmidata/projects/nckf/earthshine/WORKSHOP/EARTHSHINE/OUTPUT/CUBES"
+STACK_DIR = OUTPUT_DIR / "CUBES"
 
 OUT_PATTERN = "synthetic_stack_JD{jdtag}.fits"
+
+AUX_DIR = OUTPUT_DIR / "LONLAT_AND_ANGLES_IMAGES"
+
 # --------------------------
 
 
@@ -133,8 +137,11 @@ def stack_and_write(jd: float) -> Path:
     # ---- locate files by JD (use OUTPUT_DIR consistently) ----
     f_ideal0 = find_one(str(OUTPUT_DIR / f"IDEAL/ideal_LunarImg_SCA_*0p000*JD*{jdstr}*.fit*"))
     f_ideal1 = find_one(str(OUTPUT_DIR / f"IDEAL/ideal_LunarImg_SCA_*1p000*JD*{jdstr}*.fit*"))
-    f_lonlat = find_one(str(OUTPUT_DIR / f"lonlatSELimage_JD{jdstr}.fit*"))
-    f_angles = find_one(str(OUTPUT_DIR / f"Angles_JD{jdstr}.fit*"))
+#   f_lonlat = find_one(str(OUTPUT_DIR / f"lonlatSELimage_JD{jdstr}.fit*"))
+#   f_angles = find_one(str(OUTPUT_DIR / f"Angles_JD{jdstr}.fit*"))
+    f_lonlat = find_one(str(AUX_DIR / f"lonlatSELimage_JD{jdstr}.fit*"))
+    f_angles = find_one(str(AUX_DIR / f"Angles_JD{jdstr}.fit*"))
+
     f_sunmsk = find_one(str(OUTPUT_DIR / f"SUNMASK/*{jdstr}*.fit*"))
 
     # ---- read arrays ----
