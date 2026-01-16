@@ -1,0 +1,37 @@
+---
+title: "How good are the fitted disk radii?"
+output: 
+  pdf_document: 
+    fig_height: 7
+---
+
+Compares the lunar disc diameter from ephemeris and that stored inside the FITS cube file headers - these are found with circle fitting and RANSAC. 
+
+```{r setup}
+rm(list=ls())
+setwd("~/WORKSHOP/EARTHSHINE/")
+
+df <- read.csv("OUTPUT/COMBINED/jd_angdiam_2radius.csv",header=T,sep=",")
+df <- df[,-1]
+df <- df[,-2]
+df <- df[,-3]
+  
+```
+
+```{r}
+scale <- 6.67
+plot(df$two_times_radius_hdr*scale,df$ang_diam_arcsec_mlo,pch=19,cex=0.2)
+abline(c(0,1),col=2,lwd=3)
+plot(df$ang_diam_arcsec_mlo,6.67*2*df$radius_hdr)
+abline(c(0,1),col=2,lwd=3)
+par(mfrow=c(2,1))
+yran <- range(c(df$ang_diam_arcsec_mlo,6.67*2*df$radius_hdr))
+plot(df$jd,df$ang_diam_arcsec_mlo,ylim=yran,col=2,pch=19,cex=1.)
+points(df$jd,6.67*2*df$radius_hdr,col=4,pch=4,cex=0.4)
+plot(df$jd,df$ang_diam_arcsec_mlo-6.67*2*df$radius_hdr,xlab="JD",ylab="Difference [asec]")
+abline(h=0,col=2,lwd=3)
+print(c("SD of difference: ",sd(df$ang_diam_arcsec_mlo-6.67*2*df$radius_hdr)," asec."))
+print(c("SD of difference: ",sd(df$ang_diam_arcsec_mlo-6.67*2*df$radius_hdr)/6.67," pix."))
+```
+
+ 

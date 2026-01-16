@@ -9,6 +9,7 @@ dependencies = [
     "astroquery>=0.4.11",
     "matplotlib>=3.10.8",
     "numpy>=2.4.1",
+    "pandas>=2.3.3",
     "scikit-image>=0.26.0",
     "scipy>=1.16.3",
 ]
