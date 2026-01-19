@@ -22,6 +22,8 @@ The two products are matched by **Julian Date (JD)** and merged for joint analys
 * Shape: `(N_obs, ny, nx)`
 * Header contains full observational metadata
 
+Use code like go_align_observed.sh
+
 ### Synthetic cubes
 
 * One FITS file per JD
